@@ -1,0 +1,172 @@
+  
+
+OTDS On-Prem Install Guide
+
+Contents
+
+[**OTDS Installation Guide**. 1](file:///C:/Users/mprabhakar/Downloads/OTDS%20Installation%20Guide.docx#_Toc168482313)
+
+[**Prerequisites**. 1](file:///C:/Users/mprabhakar/Downloads/OTDS%20Installation%20Guide.docx#_Toc168482314)
+
+[**Step-by-Step Installation**. 1](file:///C:/Users/mprabhakar/Downloads/OTDS%20Installation%20Guide.docx#_Toc168482315)
+
+[**1\. Install Required Software**. 1](file:///C:/Users/mprabhakar/Downloads/OTDS%20Installation%20Guide.docx#_Toc168482316)
+
+[**2\. Configure Apache Tomcat** 2](file:///C:/Users/mprabhakar/Downloads/OTDS%20Installation%20Guide.docx#_Toc168482317)
+
+[**3\. Install OTDS**. 3](file:///C:/Users/mprabhakar/Downloads/OTDS%20Installation%20Guide.docx#_Toc168482318)
+
+[**4\. Verify Installation**. 3](file:///C:/Users/mprabhakar/Downloads/OTDS%20Installation%20Guide.docx#_Toc168482319)
+
+[**References**. 4](file:///C:/Users/mprabhakar/Downloads/OTDS%20Installation%20Guide.docx#_Toc168482320) 
+
+**Prerequisites** 
+
+*   Operating System: SLES 15 SP5
+*   Required Packages:
+
+*   PostgreSQL 14
+*   PostgreSQL Contrib
+*   Java 17 or 21
+*   Apache Tomcat 10.1
+
+**Step-by-Step Installation**
+
+**1\. Install Required Software**
+
+**1.1 Install SLES 15 SP5 with PostgreSQL Contrib**
+
+Ensure you have SLES 15 SP5 installed and running. Install the PostgreSQL Contrib package:
+
+bash
+
+sudo zypper install postgresql-contrib
+
+**1.2 Install Java 17 or 21**
+
+Download and install Java 17 or 21:
+
+bash
+
+sudo zypper install java-17-openjdk
+
+\# or
+
+sudo zypper install java-21-openjdk
+
+**1.3 Install PostgreSQL 14**
+
+Install PostgreSQL 14:
+
+bash
+
+sudo zypper addrepo https://download.opensuse.org/repositories/server:database/postgresql/SLE\_15\_SP5/server:database:postgresql.repo
+
+sudo zypper refresh
+
+sudo zypper install postgresql14
+
+**1.4 Install Apache Tomcat 10.1**
+
+Download and install Apache Tomcat 10.1:
+
+bash
+
+wget https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.24/bin/apache-tomcat-10.1.24.tar.gz
+
+tar xzf apache-tomcat-10.1.24.tar.gz
+
+sudo mv apache-tomcat-10.1.24 /opt/tomcat
+
+**2\. Configure Apache Tomcat**
+
+**2.1 Set Heap Size**
+
+Edit the catalina.sh file to configure the heap size:
+
+bash
+
+sudo nano /opt/tomcat/bin/catalina.sh
+
+Add the following line:
+
+bash
+
+JAVA\_OPTS="-Xmx1024m $JAVA\_OPTS"
+
+**2.2 Configure HTTPS Keystore**
+
+Create a certificate for HTTPS:
+
+bash
+
+export IG\_JKS\_ALIAS=tom
+
+export IG\_JKS\_FQDN=igqe-131.cloud-igas-qe.com
+
+export IG\_JKS\_FILE=secure.jks
+
+export IG\_JKS\_PWD=changeit
+
+keytool -genkeypair -keyalg RSA -keysize 2048 -validity 730 -alias "$IG\_JKS\_ALIAS" -dname "cn=$IG\_JKS\_FQDN" -keystore "$IG\_JKS\_FILE" -keypass "$IG\_JKS\_PWD" -storepass "$IG\_JKS\_PWD" -storetype PKCS12
+
+Update the server.xml file with the following connector configuration:
+
+xml
+
+
+
+ 
+
+ 
+
+ 
+
+
+
+**3\. Install OTDS**
+
+Download and install OTDS using the provided installer URLs:
+
+**For Linux:**
+
+bash
+
+wget https://artifactory.opentext.net/artifactory/OT/latest/comp/otds.installation/16\_rel-branch/MSWin32\_64/media.zip!/OTDS-2420-LNX.tar
+
+tar xvf OTDS-2420-LNX.tar
+
+cd OTDS-2420-LNX
+
+./install.sh
+
+**For Windows:**
+
+Download and run the installer from the following URL:
+
+plaintext
+
+https://artifactory.opentext.net/artifactory/OT/latest/comp/otds.installation/16\_rel-branch/MSWin32\_64/media.zip!/OTDS-2420-WIN/en-US/OTDS-2420-WIN.msi
+
+**4\. Verify Installation**
+
+**4.1 Check Logs**
+
+Ensure OTDS logs are generated correctly:
+
+bash
+
+cat /opt/tomcat/logs/otds.logs
+
+**4.2 Launch OTDS**
+
+Access OTDS using the following URL:
+
+plaintext
+
+https://:8443/otds-admin
+
+**References**
+
+*   [Apache Tomcat® - Apache Tomcat 10 Software Downloads](https://tomcat.apache.org/download-10.cgi)
+*   [Apache Tomcat 10.1.24 README](https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.24/README.html)
